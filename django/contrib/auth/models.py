@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from .validators import UnicodeUsernameValidator
 
 
+# BOOKMARK: 信号是如何设置的
 def update_last_login(sender, user, **kwargs):
     """
     A signal receiver which updates the last_login date for
@@ -23,6 +24,10 @@ def update_last_login(sender, user, **kwargs):
 class PermissionManager(models.Manager):
     use_in_migrations = True
 
+    # BOOKMARK: 自然键:
+    #               数据库数据序列化和反序列化时过程中，默认使用主键来关联引用对象。但主键值可能并不是稳定可预测(比如自增 id), 这时就
+    #               需要使用 natural key 来引用关联对象。
+    #           参考文档: https://docs.djangoproject.com/zh-hans/2.1/topics/serialization/
     def get_by_natural_key(self, codename, app_label, model):
         return self.get(
             codename=codename,
@@ -86,6 +91,8 @@ class GroupManager(models.Manager):
     The manager for the auth's Group model.
     """
     use_in_migrations = True
+    # BOOKMARK: 管理器在迁移中可用
+    #           数据迁移脚本中使用的时模型的历史版本（且没有任何自定义方法），但它们具有相同的字段，关系，管理器。
 
     def get_by_natural_key(self, name):
         return self.get(name=name)
@@ -139,7 +146,7 @@ class UserManager(BaseUserManager):
             raise ValueError('The given username must be set')
         email = self.normalize_email(email)
         username = self.model.normalize_username(username)
-        user = self.model(username=username, email=email, **extra_fields)
+        user = self.model(username=username, email=email, **extra_fields)  # self.model: 对应的模型类
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -166,7 +173,7 @@ def _user_get_all_permissions(user, obj):
     permissions = set()
     for backend in auth.get_backends():
         if hasattr(backend, "get_all_permissions"):
-            permissions.update(backend.get_all_permissions(user, obj))
+            permissions.update(backend.get_all_permissions(user, obj))  # WHY: 验证 backend 可以给予权限？
     return permissions
 
 
@@ -361,6 +368,8 @@ class User(AbstractUser):
     Username and password are required. Other fields are optional.
     """
     class Meta(AbstractUser.Meta):
+        # WHY: 这是为什么能替换 User 对象的原因
+        #      https://github.com/wq/django-swappable-models/blob/master/swapper/__init__.py
         swappable = 'AUTH_USER_MODEL'
 
 

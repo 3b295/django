@@ -297,6 +297,7 @@ def deserialize_fk_value(field, field_value, using, handle_forward_references):
     model = field.remote_field.model
     default_manager = model._default_manager
     field_name = field.remote_field.field_name
+    # BOOKMARK: get_by_natural_key 根据有无实现该方法来决定如何解析
     if (hasattr(default_manager, 'get_by_natural_key') and
             hasattr(field_value, '__iter__') and not isinstance(field_value, str)):
         try:
