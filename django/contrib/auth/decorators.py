@@ -19,6 +19,7 @@ def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIE
         def _wrapped_view(request, *args, **kwargs):
             if test_func(request.user):
                 return view_func(request, *args, **kwargs)
+            # 重定向到登陆页面
             path = request.build_absolute_uri()
             resolved_login_url = resolve_url(login_url or settings.LOGIN_URL)
             # If the login url is the same scheme and net location then just

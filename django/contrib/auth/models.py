@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from .validators import UnicodeUsernameValidator
 
 
-# BOOKMARK: 信号是如何设置的
+# BOOKMARK: auth.apps.py 里注册，处理登陆信号
 def update_last_login(sender, user, **kwargs):
     """
     A signal receiver which updates the last_login date for
@@ -368,8 +368,8 @@ class User(AbstractUser):
     Username and password are required. Other fields are optional.
     """
     class Meta(AbstractUser.Meta):
-        # WHY: 这是为什么能替换 User 对象的原因
-        #      https://github.com/wq/django-swappable-models/blob/master/swapper/__init__.py
+        # 这是为什么能替换 User 对象的原因
+        # https://github.com/wq/django-swappable-models/blob/master/swapper/__init__.py
         swappable = 'AUTH_USER_MODEL'
 
 

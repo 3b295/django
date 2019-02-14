@@ -157,6 +157,7 @@ class UserAttributeSimilarityValidator:
         return _("Your password can't be too similar to your other personal information.")
 
 
+# 常见的弱密码校验
 class CommonPasswordValidator:
     """
     Validate whether the password is a common password.

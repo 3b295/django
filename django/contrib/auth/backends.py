@@ -13,10 +13,12 @@ class ModelBackend:
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         try:
+            # 默认的  manager 可能不叫 objects。应该使用 _default_manager 代替 objects
             user = UserModel._default_manager.get_by_natural_key(username)
         except UserModel.DoesNotExist:
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a nonexistent user (#20760).
+            # 避免过快的返回结果（黑客可以通过返回时间的长短判断账户是否存在）
             UserModel().set_password(password)
         else:
             if user.check_password(password) and self.user_can_authenticate(user):
@@ -38,6 +40,7 @@ class ModelBackend:
         user_groups_query = 'group__%s' % user_groups_field.related_query_name()
         return Permission.objects.filter(**{user_groups_query: user_obj})
 
+    # 权限只查询一次，之后作为实例属性进行缓存
     def _get_permissions(self, user_obj, obj, from_name):
         """
         Return the permissions of `user_obj` from `from_name`. `from_name` can

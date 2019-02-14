@@ -15,14 +15,19 @@ class AuthConfig(AppConfig):
     verbose_name = _("Authentication and Authorization")
 
     def ready(self):
+        # 每个app迁移后生成对应的权限表数据
         post_migrate.connect(
             create_permissions,
             dispatch_uid="django.contrib.auth.management.create_permissions"
         )
         last_login_field = getattr(get_user_model(), 'last_login', None)
         # Register the handler only if UserModel.last_login is a field.
+        # 通过 DeferredAttribute 来判断是否是数据字段和 db 那边的实现有关
         if isinstance(last_login_field, DeferredAttribute):
             from .models import update_last_login
+            # dispatch_uid: 预防接收器被多次注册，唯一的 dispatch_uid 仅被绑定一次
             user_logged_in.connect(update_last_login, dispatch_uid='update_last_login')
+
+        # 对 user model 和 permissions model 进行静态检查，在大多数命令前隐式执行（不包括 WSGI 部署)
         checks.register(check_user_model, checks.Tags.models)
         checks.register(check_models_permissions, checks.Tags.models)

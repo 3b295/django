@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'naturalkey.apps.NaturalkeyConfig',
+    'studysingal.apps.StudysingalConfig',
 ]
 
 MIDDLEWARE = [

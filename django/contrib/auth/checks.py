@@ -7,6 +7,7 @@ from django.core import checks
 
 from .management import _get_builtin_permissions
 
+# User 是可拓展的，使用 django.core.checks 系统检查框架对 相关 model 进行静态检查
 
 def check_user_model(app_configs=None, **kwargs):
     if app_configs is None:
